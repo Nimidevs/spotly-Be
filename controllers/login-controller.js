@@ -16,11 +16,11 @@ dotenv.config();
 const logIn = asyncHandler(async (req, res, next) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     // throw new AppError("Request body is required", 400);
-    throw new AppError({
-      message: "Request body is required",
-      status: 400,
-      code: "VALIDATION_400_EMPTY_BODY",
-    });
+    throw new AppError(
+      "Request body is required",
+      400,
+      "VALIDATION_400_EMPTY_BODY",
+    );
   }
 
   const data = validate(authSchema, req.body);
@@ -38,11 +38,11 @@ const logIn = asyncHandler(async (req, res, next) => {
       where: { email: data.email },
     });
   } catch (err) {
-    throw new AppError({
-      message: "Unable to process login request",
-      status: 500,
-      code: "SERVER_500_USER_LOOKUP_FAILED",
-    });
+    throw new AppError(
+      "Unable to process login request",
+      500,
+      "SERVER_500_USER_LOOKUP_FAILED",
+    );
   }
 
   const passwordMatches = user
@@ -51,13 +51,14 @@ const logIn = asyncHandler(async (req, res, next) => {
 
   if (!user || !passwordMatches) {
     // throw new AppError("Email or Password incorrect", 401);
-    throw new AppError({
-      message: "Invalid email or password",
-      status: 401,
-      code: "AUTH_401_INVALID_CREDENTIALS",
-    });
+    throw new AppError(
+      "Invalid email or password",
+      401,
+      "AUTH_401_INVALID_CREDENTIALS",
+    );
   }
 
+  const { passwordHash, isBanned, deletedAt, updatedAt, ...safeUser } = user;
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken();
 
@@ -73,11 +74,7 @@ const logIn = asyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     // throw new AppError("Failed to create session", 500);
-    throw new AppError({
-      message: "Login failed",
-      status: 500,
-      code: "SERVER_500_SESSION_CREATE_FAILED",
-    });
+    throw new AppError("Login failed", 500, "SERVER_500_SESSION_CREATE_FAILED");
   }
 
   res.cookie("refresh_token", refreshToken, {
@@ -90,7 +87,7 @@ const logIn = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    user,
+    user: safeUser,
     message: "Login Successful",
     token: accessToken,
   });

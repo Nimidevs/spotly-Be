@@ -20,7 +20,7 @@ const signUp = asyncHandler(async (req, res, next) => {
     throw new AppError(
       "Request body is required",
       400,
-      "VALIDATION_400_EMPTY_BODY"
+      "VALIDATION_400_EMPTY_BODY",
     );
   }
 
@@ -29,9 +29,9 @@ const signUp = asyncHandler(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
   const refreshToken = generateRefreshToken();
-  console.log('refreshTokenfromLogin:', refreshToken)
+  console.log("refreshTokenfromLogin:", refreshToken);
   const hashedRefreshToken = hashRefreshToken(refreshToken);
-  console.log('hashedRefreshTokenfromLogin:', hashedRefreshToken)
+  console.log("hashedRefreshTokenfromLogin:", hashedRefreshToken);
   const refreshTokenExpiry = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_MS);
 
   /* So we're using transactions to avoid edge cases like the user getting created, but the 
@@ -54,6 +54,8 @@ const signUp = asyncHandler(async (req, res, next) => {
     });
   });
 
+  const { passwordHash, isBanned, deletedAt, updatedAt, ...safeUser } = newUser;
+
   const accessToken = generateAccessToken(newUser);
 
   res.cookie("refresh_token", refreshToken, {
@@ -68,7 +70,7 @@ const signUp = asyncHandler(async (req, res, next) => {
     success: true,
     message: "Account created successfully",
     token: accessToken,
-    user: newUser,
+    user: safeUser
   });
 });
 

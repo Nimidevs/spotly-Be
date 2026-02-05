@@ -87,7 +87,7 @@ export const location = asyncHandler(async (req, res, next) => {
   const data = validate(locationSchema, req.body);
   console.log(data)
 
-  await prisma.user.update({
+  const user = await prisma.user.update({
     where: {
       id: req.user.id,
     },
@@ -98,8 +98,12 @@ export const location = asyncHandler(async (req, res, next) => {
     },
   });
 
+  const { passwordHash, isBanned, deletedAt, updatedAt, ...safeUser } = user;
+
+
   res.status(200).json({
     success: true,
     message: "Location permission updated",
+    user: safeUser
   });
 });

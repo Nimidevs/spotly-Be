@@ -7,6 +7,8 @@ import errorHandler from "./controllers/global-error-controller.js";
 import routes from "./routes/index.js";
 import AppError from "./utils/app-error.js";
 import dotenv from "dotenv";
+import { WebSocketServer } from "ws";
+import { onMessage } from "./ws/onMessage.js";
 
 dotenv.config();
 
@@ -16,11 +18,42 @@ const app = express();
 
 const port = process.env.PORT || 8000;
 
+const server = app.listen(port, () => {
+  console.log(`listening at port: ${port}`);
+});
+
+const activeConections =
+  new Map(); /** We'd later upgrade this to use Redis so it'd be scalable */
+activeConections.get();
+const wss = new WebSocketServer({ server });
+wss.on("connection", async (ws, req) => {
+  console.log("New WebSocket connection");
+  console.log("Request URL:", req.url); // ← See what path is being requested
+  console.log("Request headers:", req.headers);
+
+  ws.on("message", (raw) => onMessage(ws, raw, activeConections));
+  //ws.on("close", () => onDisconnect())
+  // app.js
+  ws.on("close", () => {
+    if (ws.userId) {
+      activeConections.delete(ws.userId);
+      console.log(`User ${ws.userId} disconnected`);
+    }
+  });
+
+  ws.on("error", (error) => {
+    console.error("WebSocket error:", error);
+    if (ws.userId) {
+      activeConections.delete(ws.userId);
+    }
+  });
+});
+
 app.use(
   cors({
     origin: process.env.FRONTEND_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -35,7 +68,3 @@ app.use((req, res, next) => {
 });
 
 app.use(errorHandler);
-
-app.listen(port, () => {
-  console.log(`listening at port: ${port}`);
-});

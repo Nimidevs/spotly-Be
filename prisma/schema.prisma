@@ -51,6 +51,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   sessions Session[]
+  chatParticipants ChatParticipant[]
+  messages         Message[]
 }
 
 
@@ -68,6 +70,56 @@ model Session {
 
   @@index([userId])
 }
+
+
+
+model ChatRoom {
+  id               String            @id @default(cuid())
+  createdAt        DateTime          @default(now())
+
+  //update everytime a user sends a message
+  lastMessageAt    DateTime? 
+
+  participants     ChatParticipant[]
+  messages         Message[]
+}
+
+model ChatParticipant {
+  id          String   @id @default(cuid())
+
+  userId      String
+  chatRoomId String
+
+  joinedAt    DateTime @default(now())
+
+  //update everytime a user/chat-participant opens a chat-room
+  lastReadAt DateTime?
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chatRoomId])
+  @@index([userId])
+  @@index([chatRoomId])
+}
+
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  createdAt DateTime @default(now())
+
+  senderId   String
+  chatRoomId String
+
+  sender     User     @relation(fields: [senderId], references: [id])
+  chatRoom  ChatRoom @relation(fields: [chatRoomId], references: [id])
+
+  @@index([chatRoomId, createdAt])
+}
+
+
+
 
 enum JoinReason {
   CASUAL_MEETUP

@@ -1,0 +1,41 @@
+1. you might have to change the user reasons field in the model to be a list of reasons instead
+2. Dont forget about adding google oauth and syncing it with our current auth system
+3. ws is not currently optimized the best way ( i need to find a way to be able to check if a user is online so i'm not making updates for offline users e.g sending their last locatio update, or trying to push an update to them )
+4. I need to properly handle failed connections or closes proprly and clean up loose ends, e.g remove offline users from almost if not all redis entries they're present in
+5. Consider saving chat requests to the db, so if a user doesnt get it either due to being offline or something, they can see it later
+6. The app error constructor has changed, go and change how you call it in the function you wrote before you changed it
+7. Remember that you made changes to setting availability in redis because redis cant save booleans just strings or buffer so make changes to the other handlers that make use of availability
+
+other users infos i need to send to nearby users
+1. first and last names
+2. Bio
+3. reasons
+4. lat, lng, userId
+5. Users avatar/profile pic
+
+
+after web-socket's auth has been confirmed, what next?
+1. Should we send location first?
+2. Update location first?
+
+i think i solved this by saving availability and all the other info's i need as well on web-socket auth
+
+both of them currently depend on the other to have been sent to work properly
+
+{
+    firstName,
+    lastName,
+    bio,
+    reason,
+    avatar,
+    availability,
+    lat,
+    lng,
+    h3,
+}
+
+Cli commands i frequently make use of in this project
+sudo service redis-server start
+sudo pg_ctlcluster 16 main start
+sudo service postgresql restart
+

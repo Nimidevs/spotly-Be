@@ -71,4 +71,17 @@ const authenticate = asyncHandler(async (req, res, next) => {
   next();
 });
 
+export const verifyTokenForWs = (token) => {
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    if (err.name === "TokenExpiredError") {
+      throw new Error("Access token expired", 401, "AUTH_401_EXPIRED");
+    }
+    throw new Error("Invalid token", 401, "AUTH_401_INVALID");
+  }
+  return decoded.sub;
+};
+
 export default authenticate;
