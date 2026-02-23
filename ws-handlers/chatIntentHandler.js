@@ -4,10 +4,7 @@ export const chatIntent = async (ws, payload, connectionsMap) => {
   const requestingUserId = ws.userId;
   const [firstName, lastName, availability, avatar] = await redis.hmGet(
     `user:${requestingUserId}`,
-    "firstName",
-    "lastName",
-    "availability",
-    "avatar",
+    ["firstName", "lastName", "availability", "avatar"],
   );
   if (availability !== "available") return;
   /**Consider adding a redis object/map for every request with a short TTL so it expires aftera while, it's also deleted immediately a user accepts the chat request */

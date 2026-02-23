@@ -9,6 +9,7 @@ import AppError from "./utils/app-error.js";
 import dotenv from "dotenv";
 import { WebSocketServer } from "ws";
 import { onMessage } from "./ws/onMessage.js";
+import { createDemoData } from "./utils/createMockData.js";
 
 dotenv.config();
 
@@ -18,7 +19,10 @@ const app = express();
 
 const port = process.env.PORT || 8000;
 
-const server = app.listen(port, () => {
+const server = app.listen(port, async () => {
+  await createDemoData().catch((err) => {
+    console.error("createDemoData failed:", err);
+  });
   console.log(`listening at port: ${port}`);
 });
 

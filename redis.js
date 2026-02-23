@@ -1,6 +1,7 @@
 import { createClient } from "redis";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
 const redis = new createClient({
@@ -21,6 +22,7 @@ redis.on("reconnecting", () => console.log("'↻ Reconnecting..."));
 //     await redis.connect();
 // }
 // connectRedis()
+
 
 await redis.connect();
 

@@ -4,9 +4,14 @@
 4. I need to properly handle failed connections or closes proprly and clean up loose ends, e.g remove offline users from almost if not all redis entries they're present in
 5. Consider saving chat requests to the db, so if a user doesnt get it either due to being offline or something, they can see it later
 6. The app error constructor has changed, go and change how you call it in the function you wrote before you changed it
-7. Remember that you made changes to setting availability in redis because redis cant save booleans just strings or buffer so make changes to the other handlers that make use of availability
+7. Remember that you made changes to setting availability in redis because redis can't save booleans just strings or buffer so make changes to the other handlers that make use of availability
+8. It currently sends nearby:user:left event to itself i.e i didnt filter by userId so if a user leaves an h3 index it notifies said user too (made a fix for this still needs a lot of testing (My fix was redundant as i already removed the user from the h3 set it was previously in ))
+9. Review your location handler logic, you currently have 3 cases it should be just 2, 1 for when a user has moved to another h3 index, and one to handle any other case, the CASE B: where we handle a location update for a user that is
+   still in the same cell, we only set it's lat and lng and return we do not update other users or get nearby users, even though another user might have joined the the h3Index. I think this is accounted for/handled in the other 2 cases 
+   though as users are automatically updated when someone new joins their h3Cell
 
-other users infos i need to send to nearby users
+
+other users infos i need to send to nearby users 
 1. first and last names
 2. Bio
 3. reasons
@@ -16,7 +21,7 @@ other users infos i need to send to nearby users
 
 after web-socket's auth has been confirmed, what next?
 1. Should we send location first?
-2. Update location first?
+2. Update location first? (this comes first from the FE immediately after auth we get a location update)
 
 i think i solved this by saving availability and all the other info's i need as well on web-socket auth
 

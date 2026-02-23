@@ -36,8 +36,16 @@ export const authHandler = async (ws, payload, connectionsMap) => {
     availability: availability ? "available" : "unavailable",
   });
   //console.log('active connections map:', connectionsMap)
-  ws.send("connected");
+  ws.send(
+    JSON.stringify({
+      event: "auth:success",
+      data: {
+        message: "connected",
+      },
+    }),
+  );
 };
+
 
 /*original code block in the ws initialization*/
 // const token = new URL(req.url, "http://localhost").searchParams.get("token");
