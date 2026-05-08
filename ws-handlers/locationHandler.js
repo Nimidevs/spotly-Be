@@ -17,6 +17,7 @@ export const locationHandler = async (ws, payload, connectionsMap) => {
   const { lat, lng } = payload;
   const resolution = Number(process.env.H3_Resolution) || 12;
   const h3Index = H3.latLngToCell(lat, lng, resolution);
+  console.log('users h3 index:', h3Index)
 
   const userKey = `user:${userId}`;
   const newH3Key = `h3:${h3Index}`;
@@ -53,6 +54,9 @@ export const locationHandler = async (ws, payload, connectionsMap) => {
 
     const nearby = await getNearbyUsers(newH3Key, userId);
     const visible = getVisibleUsers(nearby);
+    console.log('debeeee first entry')
+    console.log('List OF VISIBLE USERS:', visible)
+    console.log('List OF NEARBY USERS:', nearby)
     ws.send(JSON.stringify({ event: "nearby:users", data: visible }));
 
     if (isUserVisible) {
